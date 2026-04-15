@@ -2,7 +2,7 @@
 /**
  * MCP Server Test Harness
  *
- * Spawns the built server with YT_TEST_MODE=true, talks JSON-RPC over stdio,
+ * Spawns the built server with POSTALS_TEST_MODE=true, talks JSON-RPC over stdio,
  * and verifies all Phase 1 acceptance criteria.
  */
 
@@ -11,15 +11,15 @@ import { setTimeout as wait } from "node:timers/promises";
 
 const env = {
   ...process.env,
-  YOURSTRULY_API_KEY: "test_key_fake_not_real",
-  YT_TEST_MODE: "true",
-  YT_DEFAULT_CARD_IMAGE: "https://cards.yourstruly.ai/default-postcard.png",
-  YT_SENDER_NAME: "Blue Wave Pools",
-  YT_SENDER_ADDRESS: "456 Business Ave",
-  YT_SENDER_CITY: "Austin",
-  YT_SENDER_STATE: "TX",
-  YT_SENDER_ZIP: "78701",
-  YT_DAILY_LIMIT: "5",
+  POSTALS_API_KEY: "test_key_fake_not_real",
+  POSTALS_TEST_MODE: "true",
+  POSTALS_DEFAULT_CARD_IMAGE: "https://postals.ai/default-postcard.png",
+  POSTALS_SENDER_NAME: "Blue Wave Pools",
+  POSTALS_SENDER_ADDRESS: "456 Business Ave",
+  POSTALS_SENDER_CITY: "Austin",
+  POSTALS_SENDER_STATE: "TX",
+  POSTALS_SENDER_ZIP: "78701",
+  POSTALS_DAILY_LIMIT: "5",
 };
 
 const proc = spawn("node", ["build/index.js"], { env, stdio: ["pipe", "pipe", "pipe"] });
@@ -91,7 +91,7 @@ async function main() {
     clientInfo: { name: "test-harness", version: "1.0.0" },
   });
   check("initialize succeeds", !!init.result);
-  check("server name = yourstruly-postcards", init.result?.serverInfo?.name === "yourstruly-postcards");
+  check("server name = postals", init.result?.serverInfo?.name === "postals");
   check("server version = 1.0.0", init.result?.serverInfo?.version === "1.0.0");
   check("server has instructions", !!init.result?.instructions);
 
@@ -198,7 +198,7 @@ async function main() {
   await wait(200);
 
   const proc2 = spawn("node", ["build/index.js"], {
-    env: { ...env, YT_DAILY_LIMIT: "20" },
+    env: { ...env, POSTALS_DAILY_LIMIT: "20" },
     stdio: ["pipe", "pipe", "pipe"],
   });
   proc2.stderr.on("data", (c) => stderrLines.push("[p2] " + c.toString().trim()));

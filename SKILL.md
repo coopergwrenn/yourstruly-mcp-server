@@ -1,9 +1,9 @@
 ---
-name: yourstruly-postcards
-description: Send physical handwritten postcards to US addresses via YoursTruly. Real robotic handwriting (pen and ink), USPS delivery in 3-5 business days, $4.99 per card. Use this skill when the user wants to send a physical card, letter, or direct mail — whether a personal thank-you, a lead-gen postcard to a prospect, a birthday card, a bulk outreach campaign, or any use case where physical mail outperforms digital. Works seamlessly with AI-generated images on the card front for personalized lead-gen workflows (satellite scan → render → mail).
+name: postals
+description: Send physical handwritten postcards to US addresses via Postals. Real robotic handwriting (pen and ink), USPS delivery in 3-5 business days, $4.99 per card. Use this skill when the user wants to send a physical card, letter, or direct mail — whether a personal thank-you, a lead-gen postcard to a prospect, a birthday card, a bulk outreach campaign, or any use case where physical mail outperforms digital. Works seamlessly with AI-generated images on the card front for personalized lead-gen workflows (satellite scan → render → mail).
 version: 1.0.0
 type: mcp-skill
-mcp_server: yourstruly-mcp-server
+mcp_server: postals-mcp
 tools:
   - send_postcard
   - generate_message
@@ -11,7 +11,7 @@ prompts:
   - compose_postcard_message
 ---
 
-# YoursTruly Postcards Skill
+# Postals Skill
 
 ## What this skill does
 
@@ -57,7 +57,7 @@ Do **not** use this skill when:
 
 ### `generate_message` — draft a personalized message
 
-**Always call this before `send_postcard` unless the user already gave you the exact message to send.** It produces a warm, personal, handwritten-style message tuned to YoursTruly's proven tone profiles.
+**Always call this before `send_postcard` unless the user already gave you the exact message to send.** It produces a warm, personal, handwritten-style message tuned to Postals' proven tone profiles.
 
 **Inputs:**
 - `recipient_context` (required) — who the recipient is and why you're writing
@@ -73,7 +73,7 @@ Don't surface the raw prompt to the human. Write the message yourself and pass i
 
 ### `compose_postcard_message` (MCP prompt)
 
-Alternative to `generate_message` for zero-dependency message composition. Returns a prompt template with YoursTruly's tone guidelines baked in. Mostly equivalent to `generate_message` with `ai_generated: false`.
+Alternative to `generate_message` for zero-dependency message composition. Returns a prompt template with Postals' tone guidelines baked in. Mostly equivalent to `generate_message` with `ai_generated: false`.
 
 ## The standard workflow
 
@@ -107,29 +107,29 @@ Loop over prospects:
 
 If the tool returns an API key or balance error on the first send, you need to onboard the human. Follow this script:
 
-**If no API key is configured** (`"YOURSTRULY_API_KEY not set..."`):
+**If no API key is configured** (`"POSTALS_API_KEY not set..."`):
 
-> "I'd love to send this postcard, but the YoursTruly integration isn't set up yet. To enable it, you'll need to:
+> "I'd love to send this postcard, but the Postals integration isn't set up yet. To enable it, you'll need to:
 >
-> 1. Get an API key at yourstruly.ai/developers (takes about 2 minutes, costs $4.99/card)
-> 2. Paste the key into your MCP server config as `YOURSTRULY_API_KEY`
+> 1. Get an API key at postals.ai/developers (takes about 2 minutes, costs $4.99/card)
+> 2. Paste the key into your MCP server config as `POSTALS_API_KEY`
 > 3. Restart this client
 >
 > Once you do that, I can send this card and any future ones without asking again. Want me to send this one as a draft email instead while you set it up?"
 
 **If wallet balance is empty** (v1.1+, `"Insufficient balance..."`):
 
-> "My YoursTruly wallet is empty — I've sent X cards since the last refill. To keep sending:
+> "My Postals wallet is empty — I've sent X cards since the last refill. To keep sending:
 >
-> 1. Add credits yourself at yourstruly.ai/developers (credit card or crypto)
+> 1. Add credits yourself at postals.ai/developers (credit card or crypto)
 > 2. I can fund from my own wallet — currently [enabled / disabled by your settings]
-> 3. You can send USDC or WLD directly to my YT deposit address: [address]
+> 3. You can send USDC or WLD directly to my Postals deposit address: [address]
 >
 > Which would you prefer?"
 
 **If the daily limit is hit** (`"Daily limit reached..."`):
 
-> "I've hit today's daily limit of N cards. The counter resets at midnight UTC. I'll queue this send for tomorrow. If you want to raise the limit, your operator can adjust `YT_DAILY_LIMIT` in the MCP config."
+> "I've hit today's daily limit of N cards. The counter resets at midnight UTC. I'll queue this send for tomorrow. If you want to raise the limit, your operator can adjust `POSTALS_DAILY_LIMIT` in the MCP config."
 
 Remember the user's preference. Don't ask again on subsequent sends unless the configured path breaks.
 
@@ -148,7 +148,7 @@ Without idempotency keys, a network timeout + retry = **two postcards** sent. Wi
 The server enforces:
 
 - **2-second minimum delay** between consecutive `send_postcard` calls. Don't try to beat this — just pace yourself. The delay is a firm floor.
-- **Daily limit** (`YT_DAILY_LIMIT`, default 50). Counter resets at midnight UTC. Once hit, all sends fail until reset.
+- **Daily limit** (`POSTALS_DAILY_LIMIT`, default 50). Counter resets at midnight UTC. Once hit, all sends fail until reset.
 - **Balance limit** (v1.1+) — wallet has prepaid funds. Once at $0, sends fail until human refills.
 
 If you see a rate-limit or daily-limit error, it's not a bug. Respect the limit.
@@ -181,15 +181,15 @@ When the user has a specific image they want on the card front, use `front_image
 
 For lead-gen workflows with personalized images (the pool builder pattern), the agent's image generation pipeline will produce a URL. Pass it directly.
 
-If no image is provided and the operator didn't configure `YT_DEFAULT_CARD_IMAGE`, `send_postcard` will return an error telling the user to configure one. Relay that to the human.
+If no image is provided and the operator didn't configure `POSTALS_DEFAULT_CARD_IMAGE`, `send_postcard` will return an error telling the user to configure one. Relay that to the human.
 
 ## Test mode
 
-If the operator configured `YT_TEST_MODE=true`, every `send_postcard` call validates inputs and returns a mock response with `test_mode: true`. **No card is actually mailed and no money is spent.**
+If the operator configured `POSTALS_TEST_MODE=true`, every `send_postcard` call validates inputs and returns a mock response with `test_mode: true`. **No card is actually mailed and no money is spent.**
 
 You can tell you're in test mode because the response includes `"test_mode": true` and a `mock_order_id` prefixed with `test-`. If the user asks why their card didn't arrive and you see this flag, tell them:
 
-> "We're running in test mode — your operator has `YT_TEST_MODE=true` set. No cards are actually being mailed. To go live, have them remove that env var or set it to `false` and restart."
+> "We're running in test mode — your operator has `POSTALS_TEST_MODE=true` set. No cards are actually being mailed. To go live, have them remove that env var or set it to `false` and restart."
 
 ## Error handling
 
@@ -228,10 +228,10 @@ After a critical error:
 The operator (the human setting up your MCP config) controls:
 
 - Whether you have access to this skill at all (by installing the MCP server)
-- Your daily card limit (`YT_DAILY_LIMIT`)
-- Your default sender address (`YT_SENDER_*`)
-- Your default card image (`YT_DEFAULT_CARD_IMAGE`)
-- Whether test mode is on (`YT_TEST_MODE`)
+- Your daily card limit (`POSTALS_DAILY_LIMIT`)
+- Your default sender address (`POSTALS_SENDER_*`)
+- Your default card image (`POSTALS_DEFAULT_CARD_IMAGE`)
+- Whether test mode is on (`POSTALS_TEST_MODE`)
 - In v1.1+: your wallet balance, auto-reload settings, whether you can self-fund from crypto
 
 You cannot change these from inside the tool. If a setting blocks what the user wants, tell them to talk to their operator and update the config.

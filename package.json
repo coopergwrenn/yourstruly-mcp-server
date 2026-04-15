@@ -1,11 +1,11 @@
 {
-  "name": "yourstruly-mcp-server",
-  "version": "1.0.1",
-  "mcpName": "io.github.coopergwrenn/yourstruly-mcp-server",
-  "description": "MCP server for sending physical handwritten postcards via one tool call. Real robotic handwriting (pen and ink), USPS delivery in 3-5 business days, $4.99 per card. Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
+  "name": "postals-mcp",
+  "version": "1.0.0",
+  "mcpName": "io.github.coopergwrenn/postals-mcp",
+  "description": "Postals — the agent skill that turns any AI into a direct mail machine. One MCP tool call mails a physical handwritten postcard (real pen-and-ink, USPS 3-5 day delivery, $4.99 per card). Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
   "type": "module",
   "bin": {
-    "yourstruly-mcp-server": "build/index.js"
+    "postals-mcp": "build/index.js"
   },
   "main": "./build/index.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "mcp",
     "model-context-protocol",
     "mcp-server",
+    "postals",
     "postcards",
     "handwritten",
     "direct-mail",
@@ -40,13 +41,13 @@
     "handwrytten",
     "usps"
   ],
-  "homepage": "https://github.com/coopergwrenn/yourstruly-mcp-server#readme",
+  "homepage": "https://postals.ai",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coopergwrenn/yourstruly-mcp-server.git"
+    "url": "git+https://github.com/coopergwrenn/postals-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/coopergwrenn/yourstruly-mcp-server/issues"
+    "url": "https://github.com/coopergwrenn/postals-mcp/issues"
   },
   "author": "YoursTruly AI",
   "license": "MIT",

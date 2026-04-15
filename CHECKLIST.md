@@ -1,6 +1,6 @@
-# Phase 1 Build Checklist
+# Phase 1 Build Checklist — Postals (postals-mcp)
 
-PRD: `/_notes/PRDs/InProgress/PRD-YoursTruly-MCP-Server.md`
+Internal build tracking for the Postals v1.0 MCP server.
 
 ## Key Decisions (from PRD)
 - Pricing: $4.99/card (agent skill), $3.50/card (B2B bulk — separate)
@@ -12,7 +12,7 @@ PRD: `/_notes/PRDs/InProgress/PRD-YoursTruly-MCP-Server.md`
 - Transport: stdio
 - Language: TypeScript
 - License: MIT
-- Package: unscoped `yourstruly-mcp-server`
+- Package: unscoped `postals-mcp`
 
 ## Handwrytten API Flow (3 calls)
 1. `POST /cards/uploadCustomLogo` — multipart, file + type:"cover" → `image_id`
@@ -28,8 +28,8 @@ PRD: `/_notes/PRDs/InProgress/PRD-YoursTruly-MCP-Server.md`
 - [x] 5. Rate limiting — 2s min delay between consecutive send_postcard calls ✅
 - [x] 6. `generate_message` tool — embedded tone prompts + optional CF AI ✅
 - [x] 7. `compose_postcard_message` prompt — MCP prompt primitive ✅
-- [x] 8. Test mode — YT_TEST_MODE=true, mock responses, no HW API calls ✅
-- [x] 9. Spend controls — daily limit counter, YT_DAILY_LIMIT env var (default 50) ✅
+- [x] 8. Test mode — POSTALS_TEST_MODE=true, mock responses, no HW API calls ✅
+- [x] 9. Spend controls — daily limit counter, POSTALS_DAILY_LIMIT env var (default 50) ✅
 - [x] 10. Error handling — actionable isError messages with how-to-fix ✅
 - [x] 11. Stderr logging — structured events, never PII or keys ✅
 - [x] 12. Build & test — tsc compiles cleanly (build/index.js generated) ✅
@@ -76,23 +76,23 @@ sender_context     string   optional
 
 ## Env Vars
 ```
-YOURSTRULY_API_KEY     REQUIRED  Handwrytten API key (Phase 1) or YT key (Phase 1.5+)
-YT_SENDER_NAME         optional  Default sender name
-YT_SENDER_ADDRESS      optional  Default sender street
-YT_SENDER_CITY         optional  Default sender city
-YT_SENDER_STATE        optional  Default sender state
-YT_SENDER_ZIP          optional  Default sender zip
-YT_HANDWRITING_STYLE   optional  Default font (default: "Joyful Jennifer")
-YT_DAILY_LIMIT         optional  Daily card limit (default: 50)
-YT_DEFAULT_CARD_IMAGE  optional  Default card front image URL
-YT_TEST_MODE           optional  "true" = no real sends
+POSTALS_API_KEY     REQUIRED  Handwrytten API key (Phase 1) or YT key (Phase 1.5+)
+POSTALS_SENDER_NAME         optional  Default sender name
+POSTALS_SENDER_ADDRESS      optional  Default sender street
+POSTALS_SENDER_CITY         optional  Default sender city
+POSTALS_SENDER_STATE        optional  Default sender state
+POSTALS_SENDER_ZIP          optional  Default sender zip
+POSTALS_HANDWRITING_STYLE   optional  Default font (default: "Joyful Jennifer")
+POSTALS_DAILY_LIMIT         optional  Daily card limit (default: 50)
+POSTALS_DEFAULT_CARD_IMAGE  optional  Default card front image URL
+POSTALS_TEST_MODE           optional  "true" = no real sends
 CLOUDFLARE_ACCOUNT_ID  optional  For AI message generation
 CLOUDFLARE_API_TOKEN   optional  For AI message generation
 ```
 
 ## Server Instructions
 ```
-"Send physical handwritten postcards to US addresses via YoursTruly.
+"Send physical handwritten postcards to US addresses via Postals.
  Typical workflow: generate_message → send_postcard.
  Each card costs $4.99 and arrives in 3-5 business days via USPS.
  Keep messages under 400 characters. front_image_url must be publicly accessible.
@@ -103,7 +103,7 @@ CLOUDFLARE_API_TOKEN   optional  For AI message generation
 AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC AS GU MH FM MP PW PR VI
 
 ## Exit Criteria
-- [ ] Developer can `npx -y yourstruly-mcp-server` in Claude Desktop and send a real postcard in <5 min
+- [ ] Developer can `npx -y postals-mcp` in Claude Desktop and send a real postcard in <5 min
 - [ ] Test mode works without any API keys
 - [ ] Daily limit prevents runaway sends
 - [ ] generate_message returns usable messages with CF AI, and usable prompts without

@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * YoursTruly MCP Server v1.0.1
+ * Postals v1.0.0
  *
- * Agent skill: send physical handwritten postcards with one tool call.
- * PRD: /_notes/PRDs/InProgress/PRD-YoursTruly-MCP-Server.md
+ * Agent skill that turns any AI into a direct mail machine. One MCP tool call
+ * mails a physical handwritten postcard via USPS.
+ *
+ * https://postals.ai · https://github.com/coopergwrenn/postals-mcp
+ * Built by YoursTruly AI. Fulfillment by Handwrytten.
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -12,20 +15,20 @@ import { z } from "zod";
 
 // ─── Configuration ────────────────────────────────────
 const HW_API = "https://api.handwrytten.com/v2";
-const API_KEY = process.env.YOURSTRULY_API_KEY;
-const DEFAULT_FONT = process.env.YT_HANDWRITING_STYLE || "Joyful Jennifer";
-const DAILY_LIMIT = parseInt(process.env.YT_DAILY_LIMIT || "50", 10);
-const DEFAULT_IMAGE = process.env.YT_DEFAULT_CARD_IMAGE;
-const TEST_MODE = process.env.YT_TEST_MODE === "true";
+const API_KEY = process.env.POSTALS_API_KEY;
+const DEFAULT_FONT = process.env.POSTALS_HANDWRITING_STYLE || "Joyful Jennifer";
+const DAILY_LIMIT = parseInt(process.env.POSTALS_DAILY_LIMIT || "50", 10);
+const DEFAULT_IMAGE = process.env.POSTALS_DEFAULT_CARD_IMAGE;
+const TEST_MODE = process.env.POSTALS_TEST_MODE === "true";
 const CF_ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CF_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 
 const SENDER_DEFAULT = {
-  name: process.env.YT_SENDER_NAME || "",
-  address: process.env.YT_SENDER_ADDRESS || "",
-  city: process.env.YT_SENDER_CITY || "",
-  state: process.env.YT_SENDER_STATE || "",
-  zip: process.env.YT_SENDER_ZIP || "",
+  name: process.env.POSTALS_SENDER_NAME || "",
+  address: process.env.POSTALS_SENDER_ADDRESS || "",
+  city: process.env.POSTALS_SENDER_CITY || "",
+  state: process.env.POSTALS_SENDER_STATE || "",
+  zip: process.env.POSTALS_SENDER_ZIP || "",
 };
 
 // ─── Validation ───────────────────────────────────────
@@ -55,7 +58,7 @@ function enforceLimit(): string | null {
   const today = new Date().toISOString().slice(0, 10);
   if (today !== usageDay) { usageDay = today; cardsSent = 0; }
   if (cardsSent >= DAILY_LIMIT) {
-    return `Daily limit reached (${cardsSent}/${DAILY_LIMIT}). Resets at midnight UTC. Adjust with YT_DAILY_LIMIT env var.`;
+    return `Daily limit reached (${cardsSent}/${DAILY_LIMIT}). Resets at midnight UTC. Adjust with POSTALS_DAILY_LIMIT env var.`;
   }
   return null;
 }
@@ -151,10 +154,10 @@ function splitName(full: string): { first: string; last: string } {
 
 // ─── Server ───────────────────────────────────────────
 const server = new McpServer(
-  { name: "yourstruly-postcards", version: "1.0.1" },
+  { name: "postals", version: "1.0.0" },
   {
     instructions:
-      "Send physical handwritten postcards to US addresses via YoursTruly. " +
+      "Send physical handwritten postcards to US addresses via Postals. " +
       "Typical workflow: generate_message -> send_postcard. " +
       "Each card costs $4.99 and arrives in 3-5 business days via USPS. " +
       "Keep messages under 400 characters. front_image_url must be publicly accessible. " +
@@ -168,7 +171,7 @@ server.registerTool(
   {
     description:
       "Send a physical handwritten postcard to a US mailing address. " +
-      "YoursTruly prints it with real robotic handwriting (pen and ink) and mails it via USPS. " +
+      "Postals prints it with real robotic handwriting (pen and ink) and mails it via USPS. " +
       "Delivery in 3-5 business days. Cost: $4.99 per card. " +
       "Provide the recipient's address, a message (max 400 chars), and optionally an image URL for the card front. " +
       "If no image is provided, uses the configured default card.",
@@ -183,7 +186,7 @@ server.registerTool(
         "The handwritten message for the back of the card. Max 400 characters. Keep it personal and concise."
       ),
       front_image_url: z.string().url().optional().describe(
-        "Public HTTPS URL of the image for the card front (PNG or JPEG, landscape 7x5 preferred). If omitted, uses YT_DEFAULT_CARD_IMAGE."
+        "Public HTTPS URL of the image for the card front (PNG or JPEG, landscape 7x5 preferred). If omitted, uses POSTALS_DEFAULT_CARD_IMAGE."
       ),
       handwriting_style: z.string().optional().describe(
         'Handwriting font name. Default: "Joyful Jennifer". Other options depend on your Handwrytten account.'
@@ -194,7 +197,7 @@ server.registerTool(
         city: z.string().describe("Sender city"),
         state: z.string().length(2).describe("Sender 2-letter state code"),
         zip: z.string().describe("Sender ZIP code"),
-      }).optional().describe("Sender's return address. If omitted, uses YT_SENDER_* env defaults."),
+      }).optional().describe("Sender's return address. If omitted, uses POSTALS_SENDER_* env defaults."),
       idempotency_key: z.string().optional().describe(
         "Unique key to prevent duplicate sends on retries. If a prior send with this key succeeded, returns the original result without sending a new card. Recommended for autonomous agents."
       ),
@@ -217,8 +220,8 @@ server.registerTool(
     // ── Pre-flight: API key ──
     if (!API_KEY) {
       return errResponse(
-        "YOURSTRULY_API_KEY not set. Add it to your MCP server env config. " +
-        "Get a key at yourstruly.ai/developers or use a Handwrytten API key for Phase 1."
+        "POSTALS_API_KEY not set. Add it to your MCP server env config. " +
+        "Get a key at postals.ai/developers or use a Handwrytten API key for Phase 1."
       );
     }
 
@@ -229,7 +232,7 @@ server.registerTool(
     // ── Pre-flight: image ──
     const imageUrl = params.front_image_url || DEFAULT_IMAGE;
     if (!imageUrl) {
-      return errResponse("No card image. Provide front_image_url or set YT_DEFAULT_CARD_IMAGE env var.");
+      return errResponse("No card image. Provide front_image_url or set POSTALS_DEFAULT_CARD_IMAGE env var.");
     }
     if (params.front_image_url && !params.front_image_url.startsWith("https://")) {
       return errResponse("front_image_url must be an HTTPS URL.");
@@ -239,7 +242,7 @@ server.registerTool(
     const sender = params.return_address || SENDER_DEFAULT;
     const senderName = sender.name || SENDER_DEFAULT.name;
     if (!senderName) {
-      return errResponse("No return address. Provide return_address or set YT_SENDER_* env vars.");
+      return errResponse("No return address. Provide return_address or set POSTALS_SENDER_* env vars.");
     }
 
     // ── Pre-flight: daily limit ──
@@ -258,7 +261,7 @@ server.registerTool(
       const result = okResponse({
         success: true,
         test_mode: true,
-        message: "Test mode — no card sent. Set YT_TEST_MODE=false to send real cards.",
+        message: "Test mode — no card sent. Set POSTALS_TEST_MODE=false to send real cards.",
         mock_order_id: `test-${Date.now()}`,
         recipient: params.to_name,
         estimated_delivery: "3-5 business days via USPS",
@@ -449,7 +452,7 @@ server.prompt(
 );
 
 // ─── Start ────────────────────────────────────────────
-log("info", "server_start", { version: "1.0.1", test_mode: TEST_MODE, daily_limit: DAILY_LIMIT });
+log("info", "server_start", { version: "1.0.0", test_mode: TEST_MODE, daily_limit: DAILY_LIMIT });
 const transport = new StdioServerTransport();
 server.connect(transport).catch((e) => {
   log("error", "server_fatal", { error: String(e) });

@@ -1,70 +1,70 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.coopergwrenn/yourstruly-mcp-server",
+  "name": "io.github.coopergwrenn/postals-mcp",
   "description": "Send physical handwritten postcards from any AI agent with one MCP tool call. Real robotic pen-and-ink handwriting, USPS delivery in 3-5 business days, $4.99 per card. Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
   "repository": {
-    "url": "https://github.com/coopergwrenn/yourstruly-mcp-server",
+    "url": "https://github.com/coopergwrenn/postals-mcp",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.0.0",
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "yourstruly-mcp-server",
-      "version": "1.0.1",
+      "identifier": "postals-mcp",
+      "version": "1.0.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "name": "YOURSTRULY_API_KEY",
-          "description": "Your Handwrytten API key (v1.0) or YoursTruly API key (v1.1+).",
+          "name": "POSTALS_API_KEY",
+          "description": "Your Handwrytten API key (v1.0) or Postals API key (v1.1+).",
           "isRequired": true,
           "isSecret": true,
           "format": "string"
         },
         {
-          "name": "YT_SENDER_NAME",
+          "name": "POSTALS_SENDER_NAME",
           "description": "Default sender full name for return address.",
           "format": "string"
         },
         {
-          "name": "YT_SENDER_ADDRESS",
+          "name": "POSTALS_SENDER_ADDRESS",
           "description": "Default sender street address.",
           "format": "string"
         },
         {
-          "name": "YT_SENDER_CITY",
+          "name": "POSTALS_SENDER_CITY",
           "description": "Default sender city.",
           "format": "string"
         },
         {
-          "name": "YT_SENDER_STATE",
+          "name": "POSTALS_SENDER_STATE",
           "description": "Default sender 2-letter US state code.",
           "format": "string"
         },
         {
-          "name": "YT_SENDER_ZIP",
+          "name": "POSTALS_SENDER_ZIP",
           "description": "Default sender 5-digit ZIP (or 5+4 format).",
           "format": "string"
         },
         {
-          "name": "YT_DEFAULT_CARD_IMAGE",
+          "name": "POSTALS_DEFAULT_CARD_IMAGE",
           "description": "Default card front image URL (HTTPS, PNG or JPEG, landscape 7x5 preferred).",
           "format": "string"
         },
         {
-          "name": "YT_HANDWRITING_STYLE",
+          "name": "POSTALS_HANDWRITING_STYLE",
           "description": "Default handwriting font. Default: Joyful Jennifer.",
           "format": "string"
         },
         {
-          "name": "YT_DAILY_LIMIT",
+          "name": "POSTALS_DAILY_LIMIT",
           "description": "Max cards per day (safety net). Default: 50.",
           "format": "string"
         },
         {
-          "name": "YT_TEST_MODE",
+          "name": "POSTALS_TEST_MODE",
           "description": "Set to 'true' for test mode (validates inputs, no cards actually sent).",
           "format": "string"
         },
