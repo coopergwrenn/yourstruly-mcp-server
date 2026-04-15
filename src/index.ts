@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * YoursTruly MCP Server v1.0.0
+ * YoursTruly MCP Server v1.0.1
  *
  * Agent skill: send physical handwritten postcards with one tool call.
  * PRD: /_notes/PRDs/InProgress/PRD-YoursTruly-MCP-Server.md
@@ -151,7 +151,7 @@ function splitName(full: string): { first: string; last: string } {
 
 // ─── Server ───────────────────────────────────────────
 const server = new McpServer(
-  { name: "yourstruly-postcards", version: "1.0.0" },
+  { name: "yourstruly-postcards", version: "1.0.1" },
   {
     instructions:
       "Send physical handwritten postcards to US addresses via YoursTruly. " +
@@ -449,7 +449,7 @@ server.prompt(
 );
 
 // ─── Start ────────────────────────────────────────────
-log("info", "server_start", { version: "1.0.0", test_mode: TEST_MODE, daily_limit: DAILY_LIMIT });
+log("info", "server_start", { version: "1.0.1", test_mode: TEST_MODE, daily_limit: DAILY_LIMIT });
 const transport = new StdioServerTransport();
 server.connect(transport).catch((e) => {
   log("error", "server_fatal", { error: String(e) });

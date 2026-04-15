@@ -1,6 +1,7 @@
 {
   "name": "yourstruly-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "io.github.coopergwrenn/yourstruly-mcp-server",
   "description": "MCP server for sending physical handwritten postcards via one tool call. Real robotic handwriting (pen and ink), USPS delivery in 3-5 business days, $4.99 per card. Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
   "type": "module",
   "bin": {

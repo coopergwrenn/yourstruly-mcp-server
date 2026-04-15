@@ -1,0 +1,85 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.coopergwrenn/yourstruly-mcp-server",
+  "description": "Send physical handwritten postcards from any AI agent with one MCP tool call. Real robotic pen-and-ink handwriting, USPS delivery in 3-5 business days, $4.99 per card. Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
+  "repository": {
+    "url": "https://github.com/coopergwrenn/yourstruly-mcp-server",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "yourstruly-mcp-server",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "YOURSTRULY_API_KEY",
+          "description": "Your Handwrytten API key (v1.0) or YoursTruly API key (v1.1+).",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "YT_SENDER_NAME",
+          "description": "Default sender full name for return address.",
+          "format": "string"
+        },
+        {
+          "name": "YT_SENDER_ADDRESS",
+          "description": "Default sender street address.",
+          "format": "string"
+        },
+        {
+          "name": "YT_SENDER_CITY",
+          "description": "Default sender city.",
+          "format": "string"
+        },
+        {
+          "name": "YT_SENDER_STATE",
+          "description": "Default sender 2-letter US state code.",
+          "format": "string"
+        },
+        {
+          "name": "YT_SENDER_ZIP",
+          "description": "Default sender 5-digit ZIP (or 5+4 format).",
+          "format": "string"
+        },
+        {
+          "name": "YT_DEFAULT_CARD_IMAGE",
+          "description": "Default card front image URL (HTTPS, PNG or JPEG, landscape 7x5 preferred).",
+          "format": "string"
+        },
+        {
+          "name": "YT_HANDWRITING_STYLE",
+          "description": "Default handwriting font. Default: Joyful Jennifer.",
+          "format": "string"
+        },
+        {
+          "name": "YT_DAILY_LIMIT",
+          "description": "Max cards per day (safety net). Default: 50.",
+          "format": "string"
+        },
+        {
+          "name": "YT_TEST_MODE",
+          "description": "Set to 'true' for test mode (validates inputs, no cards actually sent).",
+          "format": "string"
+        },
+        {
+          "name": "CLOUDFLARE_ACCOUNT_ID",
+          "description": "Optional. Enables AI message generation via Cloudflare Workers AI.",
+          "format": "string"
+        },
+        {
+          "name": "CLOUDFLARE_API_TOKEN",
+          "description": "Optional. Required together with CLOUDFLARE_ACCOUNT_ID for AI message generation.",
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
