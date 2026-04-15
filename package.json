@@ -1,0 +1,63 @@
+{
+  "name": "yourstruly-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for sending physical handwritten postcards via one tool call. Real robotic handwriting (pen and ink), USPS delivery in 3-5 business days, $4.99 per card. Works with Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, and any MCP-compatible client.",
+  "type": "module",
+  "bin": {
+    "yourstruly-mcp-server": "build/index.js"
+  },
+  "main": "./build/index.js",
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "dev": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js",
+    "start": "node build/index.js",
+    "test": "node test-harness.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "build",
+    "README.md",
+    "SKILL.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "postcards",
+    "handwritten",
+    "direct-mail",
+    "physical-mail",
+    "ai-agent",
+    "agent-skill",
+    "claude",
+    "claude-desktop",
+    "cursor",
+    "openclaw",
+    "yourstruly",
+    "handwrytten",
+    "usps"
+  ],
+  "homepage": "https://github.com/coopergwrenn/yourstruly-mcp-server#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coopergwrenn/yourstruly-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coopergwrenn/yourstruly-mcp-server/issues"
+  },
+  "author": "YoursTruly AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
