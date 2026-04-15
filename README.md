@@ -59,12 +59,28 @@ Visit **[postals.ai/developers](https://postals.ai/developers)** (coming with v1
 
 ### 2. Add the server to your MCP client
 
-**Claude Desktop** — Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+#### Option A — ask your coding agent to install it (fastest path)
+
+If you're in **Claude Code**, **Cursor**, **Continue**, **Aider**, or any other MCP client with filesystem access, just tell your agent:
+
+> Install the postals-mcp MCP server for this client. My Handwrytten API key is: `PASTE_YOUR_KEY_HERE`. Start in test mode so I can verify the setup before sending real cards.
+
+Your agent will locate your MCP config file, merge the `postals` entry into your existing `mcpServers` (preserving any other servers you have), wire up the env vars, and tell you to restart the client. You never touch JSON.
+
+Optional — add return-address details to the same prompt so `send_postcard` works without per-call overrides:
+
+> ...and use Jane Smith, 123 Main St, Austin TX 78701 as my return address.
+
+Then **fully quit and relaunch the client** (Cmd+Q on macOS — just closing the window isn't enough).
+
+#### Option B — edit your MCP config file directly
+
+For **Claude Desktop** (no built-in filesystem access by default), or any client where you'd rather set it up manually, edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
   "mcpServers": {
-    "yourstruly": {
+    "postals": {
       "command": "npx",
       "args": ["-y", "postals-mcp"],
       "env": {
@@ -81,7 +97,9 @@ Visit **[postals.ai/developers](https://postals.ai/developers)** (coming with v1
 }
 ```
 
-Fully restart Claude Desktop after editing. (Not just close the window — quit from the menu.)
+Configs for other clients (Cursor, Claude Code, OpenClaw) are in the [Client configuration](#client-configuration) section below.
+
+Fully restart the client after editing. (Not just close the window — quit from the menu.)
 
 ### 3. Verify it's working
 
@@ -107,7 +125,7 @@ Remove `POSTALS_TEST_MODE` from your config (or set to `false`), restart, and yo
 
 ## Client configuration
 
-Copy-paste-ready configs for every major MCP client.
+Copy-paste-ready configs for every major MCP client. If you're in Claude Code, Cursor, Continue, or Aider, you can skip this section entirely — just tell your agent to install Postals (see [Option A in Quick Start](#option-a--ask-your-coding-agent-to-install-it-fastest-path)) and it'll handle the config for you.
 
 ### Claude Desktop
 
@@ -117,7 +135,7 @@ Copy-paste-ready configs for every major MCP client.
 ```json
 {
   "mcpServers": {
-    "yourstruly": {
+    "postals": {
       "command": "npx",
       "args": ["-y", "postals-mcp"],
       "env": {
@@ -136,7 +154,7 @@ Per-project: `.cursor/mcp.json` in repo root
 ```json
 {
   "mcpServers": {
-    "yourstruly": {
+    "postals": {
       "command": "npx",
       "args": ["-y", "postals-mcp"],
       "env": {

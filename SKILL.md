@@ -234,7 +234,84 @@ The operator (the human setting up your MCP config) controls:
 - Whether test mode is on (`POSTALS_TEST_MODE`)
 - In v1.1+: your wallet balance, auto-reload settings, whether you can self-fund from crypto
 
-You cannot change these from inside the tool. If a setting blocks what the user wants, tell them to talk to their operator and update the config.
+You cannot change these from inside the Postals tools themselves — `send_postcard` and `generate_message` execute actions, they don't reconfigure the server. But if you have filesystem access in your client (Claude Code, Cursor, Aider, Continue, etc.), you CAN edit the MCP config file on the user's behalf. See the next section for how.
+
+## Helping the user install, configure, or update Postals
+
+Two scenarios here: (1) the user already has Postals loaded (you're reading this skill, so you're in that world) and wants to change a setting, or (2) the user wants Postals installed somewhere else — a teammate's machine, another of their own devices, etc.
+
+### Scenario 1 — reconfigure an existing install
+
+When the user asks to change settings ("disable test mode", "raise my daily limit to 100", "update my return address", "add Cloudflare credentials", "change my handwriting style"), you can edit the MCP client config file directly if you have filesystem access.
+
+**Where the config lives:**
+
+| Client | Config path |
+|--------|-------------|
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Cursor (global) | `~/.cursor/mcp.json` |
+| Cursor (per-project) | `.cursor/mcp.json` in the project root |
+| Claude Code | `~/.claude/settings.json` — Postals lives under `mcpServers.postals.env` |
+
+**Workflow:**
+
+1. Read the current config JSON
+2. Navigate to `mcpServers.postals.env`
+3. Update only the env vars the user asked about — preserve everything else (other servers, other env vars)
+4. Validate the resulting JSON — watch for trailing commas or missing quotes
+5. Write the updated config
+6. Tell the user: **"Config updated. Fully quit and relaunch [client name] for the change to take effect — just closing the window isn't enough. Cmd+Q on macOS, or quit from the menu bar."**
+
+**Common changes and their env vars:**
+
+| User says | Env var to set |
+|-----------|----------------|
+| "Enable test mode" / "Turn on test mode" | `POSTALS_TEST_MODE`: `"true"` |
+| "Disable test mode" / "Go live" | Remove `POSTALS_TEST_MODE`, or set to `"false"` |
+| "Set my daily limit to N" | `POSTALS_DAILY_LIMIT`: `"N"` |
+| "Update my return address" | `POSTALS_SENDER_NAME`, `POSTALS_SENDER_ADDRESS`, `POSTALS_SENDER_CITY`, `POSTALS_SENDER_STATE`, `POSTALS_SENDER_ZIP` |
+| "Set my default card image" | `POSTALS_DEFAULT_CARD_IMAGE`: URL (HTTPS) |
+| "Add AI message generation" | `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` |
+| "Change my handwriting style" | `POSTALS_HANDWRITING_STYLE`: font name (e.g. "Joyful Jennifer") |
+| "Rotate my API key" | `POSTALS_API_KEY`: new key value |
+
+### Scenario 2 — installing Postals on a machine you can't reach
+
+If the user asks you to set up Postals for a teammate, a remote server, or another of their devices — anywhere you don't have filesystem access — you can't directly install it. Instead, produce the exact config JSON they can hand off. Example response:
+
+> "I can't edit a config on another machine from here, but here's the exact snippet to add to their MCP config. Have them paste this into their client's config file (path depends on the client — Claude Desktop uses `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, Cursor uses `~/.cursor/mcp.json`, etc.) and restart:
+>
+> ```json
+> {
+>   "mcpServers": {
+>     "postals": {
+>       "command": "npx",
+>       "args": ["-y", "postals-mcp"],
+>       "env": {
+>         "POSTALS_API_KEY": "<their_key>",
+>         "POSTALS_TEST_MODE": "true"
+>       }
+>     }
+>   }
+> }
+> ```
+
+If their machine has Claude Code or Cursor with filesystem access, the simpler alternative: tell the user to give their agent the same prompt: *"Install the postals-mcp MCP server with my Handwrytten API key XXX, test mode on."*
+
+### Security when editing config files
+
+**Never log, echo back, or quote the user's API key in your responses.** Reference it as "your API key" when describing changes. If the user pastes a key in plain text in the conversation, do not repeat the key back verbatim in subsequent messages. Treat `POSTALS_API_KEY`, `CLOUDFLARE_API_TOKEN`, and any other `*_KEY` / `*_TOKEN` value as a secret throughout the conversation.
+
+### Confirming before destructive config changes
+
+Some config edits are effectively destructive:
+- **Disabling test mode** changes the next `send_postcard` call from a mock response into a real $4.99 card mailed via USPS
+- **Raising the daily limit significantly** lets an autonomous loop spend more money faster
+
+Before making these specific changes, confirm the user's intent explicitly. Example: *"Just to confirm — disabling test mode means the next `send_postcard` call will send a real card and charge your Handwrytten account $3.25 (plus the $4.99 we bill you). Proceed?"*
+
+For reversible changes (return address, handwriting style, default image URL), no confirmation needed — just edit and tell the user to restart.
 
 ## Things to remember
 
@@ -246,6 +323,8 @@ You cannot change these from inside the tool. If a setting blocks what the user 
 6. **Respect the rate limit.** 2 seconds between sends. Don't try to beat it.
 7. **Read `cards_sent_today` and `daily_limit` from every response.** Self-regulate.
 8. **Never log the full message, full address, or API key.** The server doesn't, and you shouldn't either.
+9. **You can edit the MCP config file.** If the user asks to change a setting, update `mcpServers.postals.env` directly — don't just tell them to do it themselves. You're the agent; this is your job.
+10. **Confirm before going live.** Flipping `POSTALS_TEST_MODE` to `false` means the next send costs real money. Always confirm intent before that change.
 
 ## When in doubt
 
