@@ -37,9 +37,7 @@
     "claude-desktop",
     "cursor",
     "openclaw",
-    "yourstruly",
-    "handwrytten",
-    "usps"
+            "usps"
   ],
   "homepage": "https://postals.ai",
   "repository": {
@@ -49,7 +47,7 @@
   "bugs": {
     "url": "https://github.com/coopergwrenn/postals-mcp/issues"
   },
-  "author": "YoursTruly AI",
+  "author": "Postals",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"

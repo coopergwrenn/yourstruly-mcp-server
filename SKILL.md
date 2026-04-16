@@ -198,7 +198,7 @@ The tool returns `isError: true` with a plain-English message for common failure
 1. **Read the error message** — it's written for you to understand and relay to the human.
 2. **If it's a config issue** (missing API key, missing sender, missing image), tell the human what they need to do.
 3. **If it's a validation issue** (bad state code, bad ZIP, message too long), fix it yourself if you can and retry, or ask the human to confirm the correct info.
-4. **If it's a Handwrytten API error** (rare), tell the human and suggest retrying in a few minutes.
+4. **If it's a fulfillment error** (rare), tell the human and suggest retrying in a few minutes.
 
 Never silently retry on errors. Always surface them to the human unless you can fix the root cause first.
 
@@ -214,7 +214,7 @@ After hitting a limit:
 
 After a critical error:
 
-> "Couldn't send — the Handwrytten API rejected the address (possibly undeliverable). Here's the error: '...'. Want me to try a different address or skip this recipient?"
+> "Couldn't send — the fulfillment service rejected the address (possibly undeliverable). Here's the error: '...'. Want me to try a different address or skip this recipient?"
 
 ## Integration with other skills
 
@@ -297,7 +297,7 @@ If the user asks you to set up Postals for a teammate, a remote server, or anoth
 > }
 > ```
 
-If their machine has Claude Code or Cursor with filesystem access, the simpler alternative: tell the user to give their agent the same prompt: *"Install the postals-mcp MCP server with my Handwrytten API key XXX, test mode on."*
+If their machine has Claude Code or Cursor with filesystem access, the simpler alternative: tell the user to give their agent the same prompt: *"Install the postals-mcp MCP server with my Postals API key XXX, test mode on."*
 
 ### Security when editing config files
 
@@ -309,7 +309,7 @@ Some config edits are effectively destructive:
 - **Disabling test mode** changes the next `send_postcard` call from a mock response into a real $4.99 card mailed via USPS
 - **Raising the daily limit significantly** lets an autonomous loop spend more money faster
 
-Before making these specific changes, confirm the user's intent explicitly. Example: *"Just to confirm — disabling test mode means the next `send_postcard` call will send a real card and charge your Handwrytten account $3.25 (plus the $4.99 we bill you). Proceed?"*
+Before making these specific changes, confirm the user's intent explicitly. Example: *"Just to confirm — disabling test mode means the next `send_postcard` call will send a real card and cost $4.99 from your Postals wallet. Proceed?"*
 
 For reversible changes (return address, handwriting style, default image URL), no confirmation needed — just edit and tell the user to restart.
 

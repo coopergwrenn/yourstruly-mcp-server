@@ -18,7 +18,7 @@
       "environmentVariables": [
         {
           "name": "POSTALS_API_KEY",
-          "description": "Your Handwrytten API key (v1.0) or Postals API key (v1.1+).",
+          "description": "Your Postals API key from postals.ai/developers.",
           "isRequired": true,
           "isSecret": true,
           "format": "string"

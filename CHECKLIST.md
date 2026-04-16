@@ -6,18 +6,12 @@ Internal build tracking for the Postals v1.0 MCP server.
 - Pricing: $4.99/card (agent skill), $3.50/card (B2B bulk — separate)
 - Font default: "Joyful Jennifer" (`HW_FONT_LABEL`)
 - Card dimension: landscape 7"x5" (`dimension_id: 1`)
-- HW API base: `https://api.handwrytten.com/v2`
-- HW auth header: `Authorization: <key>` (NO Bearer prefix)
 - Country: US only (`country_id: 1`)
 - Transport: stdio
 - Language: TypeScript
 - License: MIT
 - Package: unscoped `postals-mcp`
 
-## Handwrytten API Flow (3 calls)
-1. `POST /cards/uploadCustomLogo` — multipart, file + type:"cover" → `image_id`
-2. `POST /cards/createCustomCard` — JSON, name + dimension_id:1 + cover_id → `card_id`
-3. `POST /orders/singleStepOrder` — JSON, full order payload → `order_id`
 
 ## Development Steps
 
@@ -76,7 +70,7 @@ sender_context     string   optional
 
 ## Env Vars
 ```
-POSTALS_API_KEY     REQUIRED  Handwrytten API key (Phase 1) or YT key (Phase 1.5+)
+POSTALS_API_KEY     REQUIRED  Your Postals API key from postals.ai/developers
 POSTALS_SENDER_NAME         optional  Default sender name
 POSTALS_SENDER_ADDRESS      optional  Default sender street
 POSTALS_SENDER_CITY         optional  Default sender city

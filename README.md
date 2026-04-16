@@ -9,13 +9,13 @@
 
 Send physical handwritten postcards from any MCP-compatible AI agent — **Claude Desktop, Cursor, Claude Code, OpenClaw, n8n, LangChain, CrewAI, or your own code**. Postals handles image upload, card creation, robotic handwriting (real pen and ink), and USPS mailing.
 
-Website: [postals.ai](https://postals.ai) · Built by [YoursTruly AI](https://yourstruly.ai) · Fulfillment by [Handwrytten](https://handwrytten.com)
+Website: [postals.ai](https://postals.ai)
 
 - 💌 **$4.99 per card** — no subscriptions, no monthly minimums
 - ✍️ **Real handwriting** — robotic pens hold real ink (not font simulation)
 - 📬 **3–5 business days** — printed and mailed via USPS
 - 🤖 **Built for agents** — one tool call, spend controls, idempotency, test mode
-- 🇺🇸 **US addresses** — international coming soon
+- 🌎 **US + international** — worldwide delivery, pricing varies by destination
 
 ---
 
@@ -55,7 +55,15 @@ We ship this as **one tool**. Your agent calls `send_postcard` with a recipient 
 
 ### 1. Sign up and get an API key
 
-Visit **[postals.ai/developers](https://postals.ai/developers)** (coming with v1.1). In v1.0, you can use a [Handwrytten](https://handwrytten.com) API key directly — the server auto-detects which one you're using.
+> **Coming soon — the developer portal at [postals.ai/developers](https://postals.ai/developers) is launching shortly.** Once live, the flow is:
+>
+> 1. Go to [postals.ai/developers](https://postals.ai/developers)
+> 2. Create an account with your email (one-click magic link — no password)
+> 3. Fund your wallet ($25 / $50 / $100 / $250 via Stripe or crypto)
+> 4. Copy your `postals_live_` API key
+> 5. Paste it into your MCP config (see step 2 below)
+>
+> That's it. No external accounts needed. Just Postals.
 
 ### 2. Add the server to your MCP client
 
@@ -63,7 +71,7 @@ Visit **[postals.ai/developers](https://postals.ai/developers)** (coming with v1
 
 If you're in **Claude Code**, **Cursor**, **Continue**, **Aider**, or any other MCP client with filesystem access, just tell your agent:
 
-> Install the postals-mcp MCP server for this client. My Handwrytten API key is: `PASTE_YOUR_KEY_HERE`. Start in test mode so I can verify the setup before sending real cards.
+> Install the postals-mcp MCP server for this client. My Postals API key is: `PASTE_YOUR_KEY_HERE`. Start in test mode so I can verify the setup before sending real cards.
 
 Your agent will locate your MCP config file, merge the `postals` entry into your existing `mcpServers` (preserving any other servers you have), wire up the env vars, and tell you to restart the client. You never touch JSON.
 
@@ -168,10 +176,10 @@ Per-project: `.cursor/mcp.json` in repo root
 ### Claude Code
 
 ```bash
-claude mcp add yourstruly npx -y postals-mcp
+claude mcp add postals npx -y postals-mcp
 ```
 
-Then set env vars in `~/.claude/settings.json` under `mcpServers.yourstruly.env`.
+Then set env vars in `~/.claude/settings.json` under `mcpServers.postals.env`.
 
 ### OpenClaw / InstaClaw
 
@@ -179,7 +187,7 @@ See the bundled [SKILL.md](./SKILL.md) for the full agent-facing skill definitio
 
 ```yaml
 mcp_servers:
-  yourstruly:
+  postals:
     command: npx
     args: ["-y", "postals-mcp"]
     env:
@@ -261,7 +269,7 @@ Mails one physical handwritten postcard to a US address.
 }
 ```
 
-`balance_remaining` and `cards_available` return `-1` in v1.0 (direct Handwrytten mode). They return real values once you're on the Postals wallet (v1.1+).
+`balance_remaining` and `cards_available` return real values when using a `postals_live_` API key from postals.ai/developers.
 
 **Output (test mode)** adds `test_mode: true` and `mock_order_id`. No card is mailed.
 
@@ -409,7 +417,7 @@ Skip `generate_message` entirely. Your agent already knows how to write. Just pa
 
 ## Image handling
 
-The `front_image_url` must be a **public HTTPS URL** to a PNG or JPEG. The server fetches the image, uploads it to Handwrytten, and creates a custom card.
+The `front_image_url` must be a **public HTTPS URL** to a PNG or JPEG. The server fetches the image, uploads it to our print partner and creates a custom card.
 
 ### Recommended specs
 
@@ -443,7 +451,7 @@ When enabled:
 - All inputs are validated normally (state code, ZIP format, message length, HTTPS URL)
 - Daily limit counter increments (so you can test spend controls)
 - Rate limiter enforces 2-second delays (so you can test timing)
-- The Handwrytten API is **not called** — no cards printed, no money spent
+- The fulfillment API is **not called** — no cards printed, no money spent
 - Response includes `test_mode: true` and `mock_order_id`
 
 ```json
@@ -480,7 +488,7 @@ Set this low (5–10) while developing. Raise it once your agent is proven.
 
 ### 2. Rate limiter (2-second minimum between sends)
 
-Firm server-side throttle. If you call `send_postcard` twice in rapid succession, the second call waits 2 seconds before executing. Prevents Handwrytten API abuse and gives you time to notice runaway behavior.
+Firm server-side throttle. If you call `send_postcard` twice in rapid succession, the second call waits 2 seconds before executing. Prevents API abuse and gives you time to notice runaway behavior.
 
 ### 3. Idempotency keys
 
@@ -510,7 +518,7 @@ Errors return `isError: true` with an actionable message written for the agent t
 
 | Scenario | Error message |
 |----------|---------------|
-| Missing API key | `"POSTALS_API_KEY not set. Add it to your MCP server env config. Get a key at postals.ai/developers or use a Handwrytten API key for Phase 1."` |
+| Missing API key | `"POSTALS_API_KEY not set. Add it to your MCP server env config. Get a key at postals.ai/developers."` |
 | Invalid state code | `"Invalid state code \"ZZ\". Must be a 2-letter US state (e.g. CA, NY, TX)."` |
 | Invalid ZIP | `"Invalid ZIP \"ABC12\". Must be 5 digits (e.g. 78701) or 5+4 (e.g. 78701-1234)."` |
 | Missing image + no default | `"No card image. Provide front_image_url or set POSTALS_DEFAULT_CARD_IMAGE env var."` |
@@ -518,7 +526,7 @@ Errors return `isError: true` with an actionable message written for the agent t
 | Missing return address | `"No return address. Provide return_address or set POSTALS_SENDER_* env vars."` |
 | Daily limit hit | `"Daily limit reached (25/25). Resets at midnight UTC. Adjust with POSTALS_DAILY_LIMIT env var."` |
 | Image fetch failed | `"Send failed: Cannot fetch image from URL (HTTP 404). Ensure the URL is publicly accessible."` |
-| Handwrytten API error | `"Send failed: <classified error — address, message length, auth, etc.>"` |
+| Fulfillment error | `"Send failed: <classified error — address, message length, auth, etc.>"` |
 
 Error messages are designed so your agent can read them and either self-correct or relay the fix to the human in plain language.
 
@@ -530,7 +538,7 @@ All config is via environment variables in your MCP client config.
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `POSTALS_API_KEY` | **Yes** | — | Your API key. [postals.ai/developers](https://postals.ai/developers) (v1.1+) or Handwrytten key (v1.0). |
+| `POSTALS_API_KEY` | **Yes** | — | Your API key from [postals.ai/developers](https://postals.ai/developers). |
 | `POSTALS_SENDER_NAME` | Recommended | — | Default sender full name |
 | `POSTALS_SENDER_ADDRESS` | Recommended | — | Default sender street address |
 | `POSTALS_SENDER_CITY` | Recommended | — | Default sender city |
@@ -539,7 +547,7 @@ All config is via environment variables in your MCP client config.
 | `POSTALS_DEFAULT_CARD_IMAGE` | Recommended | — | HTTPS URL of default card front image (used when caller omits `front_image_url`) |
 | `POSTALS_HANDWRITING_STYLE` | Optional | `Joyful Jennifer` | Default handwriting font |
 | `POSTALS_DAILY_LIMIT` | Optional | `50` | Max cards per day. Set low while developing. |
-| `POSTALS_TEST_MODE` | Optional | `false` | `true` = skip Handwrytten API, return mock responses |
+| `POSTALS_TEST_MODE` | Optional | `false` | `true` = skip real sends, return mock responses |
 | `CLOUDFLARE_ACCOUNT_ID` | Optional | — | Enables AI message generation via Llama 3.1 |
 | `CLOUDFLARE_API_TOKEN` | Optional | — | Required with `CLOUDFLARE_ACCOUNT_ID` |
 
@@ -551,7 +559,7 @@ All config is via environment variables in your MCP client config.
 
 Default: `Joyful Jennifer` — warm, friendly, genuine handwriting.
 
-Other styles depend on your Handwrytten account. Common options:
+Common handwriting style options:
 
 - `Joyful Jennifer` — warm, friendly feminine
 - `Tarzan` — bold, energetic
@@ -559,7 +567,7 @@ Other styles depend on your Handwrytten account. Common options:
 - `Fancy Fiona` — elegant script
 - `Precise Paul` — neat, business-like
 
-Pass the exact style name as `handwriting_style` in the tool args, or set `POSTALS_HANDWRITING_STYLE` globally. To see all styles available on your account, check your Handwrytten dashboard.
+Pass the exact style name as `handwriting_style` in the tool args, or set `POSTALS_HANDWRITING_STYLE` globally. To see all styles available on your account, browse available styles at postals.ai/developers.
 
 ---
 
@@ -602,12 +610,12 @@ Test with `curl -I <url>` — should return 200 and a valid image content-type.
 ### Cards aren't arriving
 
 1. Is `POSTALS_TEST_MODE` set to `true`? If so, no cards are actually mailed. Remove it or set to `false`.
-2. Check your Handwrytten dashboard for the `order_id` returned by the call. It should show as queued/printed/mailed.
+2. Check the order status at postals.ai/developers for the `order_id` returned by the call. 
 3. Delivery is 3–5 business days after the card is *mailed* (not *ordered*). Printing happens within 1 business day.
 
 ### Rate limiter seems too slow
 
-The 2-second minimum is intentional and firm. It prevents Handwrytten API abuse and gives you a chance to notice runaway behavior. For bulk campaigns of thousands of cards, use the existing `bulk-campaigns-worker` API instead (different code path, different pricing).
+The 2-second minimum is intentional and firm. It prevents API abuse and gives you a chance to notice runaway behavior. 
 
 ---
 
@@ -620,13 +628,13 @@ $4.99 per card. No monthly minimums, no subscriptions. Volume discounts starting
 3–5 business days via USPS after mailing. Cards are printed and mailed within 1 business day of the API call.
 
 **Is the handwriting really handwritten?**
-Yes. [Handwrytten](https://handwrytten.com) uses custom robots that hold real pens and write in real ink on real paper. Recipients can't tell. Handwrytten is our fulfillment partner.
+Yes. Custom-built robots hold real pens and write in real ink on real paper. Recipients can't tell it's robotic.
 
 **What's the open rate on handwritten mail?**
 Typically 5–10× higher than printed direct mail. Personalized imagery on the front (AI-rendered) further lifts response rates.
 
 **What countries are supported?**
-US only in v1.0 (including DC, Puerto Rico, and other US territories). Canada, UK, and EU support planned.
+US addresses ship for $4.99/card with 3-5 business day USPS delivery. International addresses are supported — delivery takes longer and pricing varies by destination. Contact us for international rates.
 
 **Can I send letters or packages?**
 Postcards only in v1.0. Letters, envelopes, and greeting cards planned for later releases.
@@ -665,7 +673,7 @@ Structured JSON events to stderr only. We log: event name, timestamp, city/state
 
 ## What's next
 
-Current: **v1.0** — Direct Handwrytten API, $4.99/card via your own HW key.
+Current: **v1.0** — $4.99/card.
 
 Coming in **v1.1** (2–3 weeks):
 - Postals developer signup at postals.ai/developers
@@ -673,7 +681,7 @@ Coming in **v1.1** (2–3 weeks):
 - `check_balance` tool — agents see their balance in every response
 - `check_order_status` tool — poll fulfillment status
 - `cancel_postcard` tool — cancel within printing window
-- Pooled Handwrytten account (no HW account required)
+- No external account required
 
 Coming in **v2.0** (6–8 weeks):
 - Full developer dashboard at postals.ai/developers
@@ -687,7 +695,7 @@ Coming in **v2.0** (6–8 weeks):
 Coming in **v3.0+**:
 - `generate_card_image` tool — Recraft V3 AI card art
 - Card template library (thank-you, birthday, business, real estate, etc.)
-- Multi-provider fulfillment (handwritten via Handwrytten, printed via Lob)
+- Multi-provider fulfillment (handwritten + printed options)
 - International mail (Canada, UK, EU)
 - Batch send tool for high-volume workflows
 - Letters and envelopes
@@ -719,12 +727,10 @@ All 37 checks should pass.
 - **GitHub:** [github.com/coopergwrenn/postals-mcp](https://github.com/coopergwrenn/postals-mcp)
 - **agents.md** (for agents): [postals.ai/agents.md](https://postals.ai/agents.md)
 - **SKILL.md** (bundled skill file): [`./SKILL.md`](./SKILL.md)
-- **Parent company:** [YoursTruly AI](https://yourstruly.ai)
-- **Fulfillment partner:** [Handwrytten](https://handwrytten.com)
 - **Model Context Protocol:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
 
 ---
 
 ## License
 
-MIT © YoursTruly AI
+MIT © Postals

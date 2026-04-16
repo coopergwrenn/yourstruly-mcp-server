@@ -6,7 +6,6 @@
  * mails a physical handwritten postcard via USPS.
  *
  * https://postals.ai · https://github.com/coopergwrenn/postals-mcp
- * Built by YoursTruly AI. Fulfillment by Handwrytten.
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -14,7 +13,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 // ─── Configuration ────────────────────────────────────
-const HW_API = "https://api.handwrytten.com/v2";
+const FULFILLMENT_API = "https://api.handwrytten.com/v2";
 const API_KEY = process.env.POSTALS_API_KEY;
 const DEFAULT_FONT = process.env.POSTALS_HANDWRITING_STYLE || "Joyful Jennifer";
 const DAILY_LIMIT = parseInt(process.env.POSTALS_DAILY_LIMIT || "50", 10);
@@ -99,7 +98,7 @@ function storeIdempotency(key: string | undefined, result: any): void {
   }
 }
 
-// ─── Handwrytten API Helpers ──────────────────────────
+// ─── Fulfillment API Helpers ─────────────────────────
 function log(level: string, event: string, data?: Record<string, any>): void {
   console.error(JSON.stringify({ ts: new Date().toISOString(), level, event, ...data }));
 }
@@ -113,13 +112,13 @@ function okResponse(data: Record<string, any>) {
 }
 
 async function hw(path: string, init?: RequestInit): Promise<any> {
-  const res = await fetch(`${HW_API}${path}`, {
+  const res = await fetch(`${FULFILLMENT_API}${path}`, {
     ...init,
     headers: { Authorization: API_KEY!, ...(init?.headers || {}) },
   });
   const data = await res.json();
   if (data.httpCode && data.httpCode >= 400) {
-    throw new Error(data.error || data.status || `Handwrytten API error (HTTP ${data.httpCode})`);
+    throw new Error(data.error || data.status || `Fulfillment API error (HTTP ${data.httpCode})`);
   }
   return data;
 }
@@ -189,7 +188,7 @@ server.registerTool(
         "Public HTTPS URL of the image for the card front (PNG or JPEG, landscape 7x5 preferred). If omitted, uses POSTALS_DEFAULT_CARD_IMAGE."
       ),
       handwriting_style: z.string().optional().describe(
-        'Handwriting font name. Default: "Joyful Jennifer". Other options depend on your Handwrytten account.'
+        'Handwriting font name. Default: "Joyful Jennifer". Other options depend on your Postals account.'
       ),
       return_address: z.object({
         name: z.string().describe("Sender full name"),
@@ -221,7 +220,7 @@ server.registerTool(
     if (!API_KEY) {
       return errResponse(
         "POSTALS_API_KEY not set. Add it to your MCP server env config. " +
-        "Get a key at postals.ai/developers or use a Handwrytten API key for Phase 1."
+        "Get a key at postals.ai/developers."
       );
     }
 
